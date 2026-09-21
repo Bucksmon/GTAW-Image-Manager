@@ -5,7 +5,6 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import multer from "multer";
-import sharp from "sharp";
 import { z } from "zod";
 import { env } from "./config.js";
 import { connectDatabase } from "./db.js";
@@ -75,12 +74,11 @@ app.post("/api/images/upload", requireAuth, upload.single("image"), async (req, 
   if (!req.file) return res.status(400).json({ error: "Upload a PNG, JPEG, WebP, or GIF image." });
   try {
     await connectDatabase();
-    const metadata = await sharp(req.file.buffer).metadata();
     const tags = typeof req.body.tags === "string" ? req.body.tags.split(",").map((tag: string) => tag.trim().toLowerCase()).filter(Boolean).slice(0,20) : [];
     const collectionId = typeof req.body.collectionId === "string" && req.body.collectionId ? req.body.collectionId : null;
     if (collectionId) { const collection = await Collection.findOne({ _id: collectionId, userId: req.auth!.discordId }).lean(); if (!collection) return res.status(400).json({ error: "Collection not found." }); }
     const uploaded = await uploadToProviders(req.file.buffer, req.file.originalname, req.file.mimetype);
-    const image = await Image.create({ userId: req.auth!.discordId, filename: req.file.originalname, originalFilename: req.file.originalname, mimeType: req.file.mimetype, originalSize: req.file.size, width: metadata.width ?? null, height: metadata.height ?? null, hosts: uploaded.hosts, tags, collectionId });
+    const image = await Image.create({ userId: req.auth!.discordId, filename: req.file.originalname, originalFilename: req.file.originalname, mimeType: req.file.mimetype, originalSize: req.file.size, hosts: uploaded.hosts, tags, collectionId });
     res.status(201).json({ item: image, providerWarnings: uploaded.errors });
   } catch (error) { console.error(error); res.status(502).json({ error: error instanceof Error ? error.message : "Upload failed." }); }
 });
