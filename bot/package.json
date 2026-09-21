@@ -1,0 +1,8 @@
+{
+  "name": "@gtaw-image-manager/bot",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": { "dev": "node --watch src/index.js", "start": "node src/index.js" },
+  "dependencies": { "discord.js": "^14.22.1" }
+}
