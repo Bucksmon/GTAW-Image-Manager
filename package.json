@@ -1,0 +1,17 @@
+{
+  "name": "gtaw-image-manager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source Discord-based image manager for GTAW players.",
+  "license": "MIT",
+  "workspaces": ["frontend", "backend", "bot", "shared"],
+  "scripts": {
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:bot": "npm --workspace bot run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "npm --workspace frontend run build",
+    "build:backend": "npm --workspace backend run build"
+  },
+  "engines": { "node": ">=20" }
+}
