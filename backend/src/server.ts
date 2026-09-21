@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import { z } from "zod";
