@@ -11,8 +11,11 @@ const envSchema = z.object({
   DISCORD_REDIRECT_URI: z.string().url(),
   DISCORD_ALLOWED_USER_IDS: z.string().default(""),
   SESSION_SECRET: z.string().min(32),
-  IMGUR_CLIENT_ID: z.string().min(1),
-  MAX_UPLOAD_MB: z.coerce.number().positive().max(25).default(8)
+  CLOUDINARY_CLOUD_NAME: z.string().min(1),
+  CLOUDINARY_API_KEY: z.string().min(1),
+  CLOUDINARY_API_SECRET: z.string().min(1),
+  IMGBB_API_KEY: z.string().min(1),
+  MAX_UPLOAD_MB: z.coerce.number().positive().max(4).default(4)
 });
 
 export const env = envSchema.parse(process.env);
