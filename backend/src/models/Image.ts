@@ -3,9 +3,11 @@ import { Schema, model } from "mongoose";
 const hostSchema = new Schema(
   {
     provider: { type: String, required: true },
-    url: { type: String, required: true },
+    url: { type: String, default: "" },
     providerId: { type: String, default: null },
-    status: { type: String, enum: ["active", "failed"], default: "active" }
+    deleteUrl: { type: String, default: null, select: false },
+    status: { type: String, enum: ["active", "failed"], default: "active" },
+    error: { type: String, default: null }
   },
   { _id: false }
 );
