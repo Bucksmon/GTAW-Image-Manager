@@ -14,6 +14,10 @@ export async function uploadToProviders(buffer: Buffer, filename: string, mimeTy
 
   settled.forEach((result, index) => {
     const provider = providers[index];
+    if (!provider) {
+      errors.push("unknown provider: upload result index " + index);
+      return;
+    }
     if (result.status === "fulfilled") {
       hosts.push({ ...result.value, status: "active" });
     } else {
