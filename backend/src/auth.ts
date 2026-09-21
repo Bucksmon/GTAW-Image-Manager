@@ -6,7 +6,7 @@ import { User } from "./models/User.js";
 
 const SESSION_COOKIE = "gtaw_session";
 
-type SessionPayload = {
+export type SessionPayload = {
   sub: string;
   discordId: string;
   username: string;
@@ -20,7 +20,6 @@ function signState(nonce: string) {
 function verifyState(state: string) {
   const decoded = jwt.verify(state, env.SESSION_SECRET) as { nonce: string; type: string };
   if (decoded.type !== "oauth_state") throw new Error("Invalid OAuth state");
-  return decoded.nonce;
 }
 
 function signSession(user: SessionPayload) {
@@ -61,7 +60,6 @@ export function getDiscordAuthorizeUrl(state: string) {
 
 export async function handleDiscordCallback(code: string, state: string) {
   verifyState(state);
-
   const body = new URLSearchParams({
     client_id: env.DISCORD_CLIENT_ID,
     client_secret: env.DISCORD_CLIENT_SECRET,
@@ -69,28 +67,21 @@ export async function handleDiscordCallback(code: string, state: string) {
     code,
     redirect_uri: env.DISCORD_REDIRECT_URI
   });
-
   const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body
   });
-
   if (!tokenResponse.ok) throw new Error("Discord token exchange failed");
 
   const token = (await tokenResponse.json()) as { access_token: string };
-
   const userResponse = await fetch("https://discord.com/api/v10/users/@me", {
     headers: { Authorization: "Bearer " + token.access_token }
   });
-
   if (!userResponse.ok) throw new Error("Discord user lookup failed");
 
   const discordUser = (await userResponse.json()) as {
-    id: string;
-    username: string;
-    global_name?: string | null;
-    avatar?: string | null;
+    id: string; username: string; global_name?: string | null; avatar?: string | null;
   };
 
   if (allowedDiscordUserIds.size > 0 && !allowedDiscordUserIds.has(discordUser.id)) {
@@ -103,23 +94,12 @@ export async function handleDiscordCallback(code: string, state: string) {
 
   const user = await User.findOneAndUpdate(
     { discordId: discordUser.id },
-    {
-      discordId: discordUser.id,
-      username: discordUser.username,
-      globalName: discordUser.global_name ?? null,
-      avatar,
-      lastLoginAt: new Date()
-    },
+    { discordId: discordUser.id, username: discordUser.username, globalName: discordUser.global_name ?? null, avatar, lastLoginAt: new Date() },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   ).lean();
 
   return {
-    token: signSession({
-      sub: String(user._id),
-      discordId: discordUser.id,
-      username: discordUser.username,
-      type: "session"
-    })
+    token: signSession({ sub: String(user._id), discordId: discordUser.id, username: discordUser.username, type: "session" })
   };
 }
 
@@ -134,17 +114,10 @@ export function clearSessionCookie(res: Response) {
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.cookies?.[SESSION_COOKIE];
-    if (!token) {
-      res.status(401).json({ error: "Authentication required." });
-      return;
-    }
-
-    const session = verifySession(token);
-    req.auth = session;
+    if (!token) return res.status(401).json({ error: "Authentication required." });
+    req.auth = verifySession(token);
     next();
   } catch {
     res.status(401).json({ error: "Session expired. Please sign in again." });
   }
 }
-
-export type AuthRequest = Request & { auth: SessionPayload };
