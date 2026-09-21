@@ -13,7 +13,7 @@ import { createOAuthState, getDiscordAuthorizeUrl, handleDiscordCallback, setSes
 import { User } from "./models/User.js";
 import { Image } from "./models/Image.js";
 import { Collection } from "./models/Collection.js";
-import { uploadToImgur } from "./providers/imgur.js";
+import { uploadToProviders } from "./providers/manager.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -79,9 +79,9 @@ app.post("/api/images/upload", requireAuth, upload.single("image"), async (req, 
     const tags = typeof req.body.tags === "string" ? req.body.tags.split(",").map((tag: string) => tag.trim().toLowerCase()).filter(Boolean).slice(0,20) : [];
     const collectionId = typeof req.body.collectionId === "string" && req.body.collectionId ? req.body.collectionId : null;
     if (collectionId) { const collection = await Collection.findOne({ _id: collectionId, userId: req.auth!.discordId }).lean(); if (!collection) return res.status(400).json({ error: "Collection not found." }); }
-    const uploaded = await uploadToImgur(req.file.buffer, req.file.originalname, req.file.mimetype, env.IMGUR_CLIENT_ID);
-    const image = await Image.create({ userId: req.auth!.discordId, filename: req.file.originalname, originalFilename: req.file.originalname, mimeType: req.file.mimetype, originalSize: req.file.size, width: metadata.width ?? null, height: metadata.height ?? null, hosts: [{ provider: uploaded.provider, url: uploaded.url, providerId: uploaded.providerId, status: "active" }], tags, collectionId });
-    res.status(201).json({ item: image });
+    const uploaded = await uploadToProviders(req.file.buffer, req.file.originalname, req.file.mimetype);
+    const image = await Image.create({ userId: req.auth!.discordId, filename: req.file.originalname, originalFilename: req.file.originalname, mimeType: req.file.mimetype, originalSize: req.file.size, width: metadata.width ?? null, height: metadata.height ?? null, hosts: uploaded.hosts, tags, collectionId });
+    res.status(201).json({ item: image, providerWarnings: uploaded.errors });
   } catch (error) { console.error(error); res.status(502).json({ error: error instanceof Error ? error.message : "Upload failed." }); }
 });
 
