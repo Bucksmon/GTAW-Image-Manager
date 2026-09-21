@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  PORT: z.coerce.number().int().positive().default(3000),
+  PORT: z.coerce.number().int().positive().optional(),
   FRONTEND_URL: z.string().url(),
   API_URL: z.string().url(),
   MONGODB_URI: z.string().min(1),
@@ -15,8 +15,11 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().min(1),
   CLOUDINARY_API_SECRET: z.string().min(1),
   IMGBB_API_KEY: z.string().min(1),
-  MAX_UPLOAD_MB: z.coerce.number().positive().max(4).default(4)
-});
+  MAX_UPLOAD_MB: z.coerce.number().positive().max(8).default(4)
+}).transform((values) => ({
+  ...values,
+  PORT: values.PORT ?? 3000
+}));
 
 export const env = envSchema.parse(process.env);
 
