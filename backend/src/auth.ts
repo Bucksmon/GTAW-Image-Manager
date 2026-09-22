@@ -123,6 +123,8 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 }
 export function requireBotAuth(req: Request, res: Response, next: NextFunction) {
   const authorization = req.header("authorization");
+  if (!env.BOT_API_KEY) return res.status(503).json({ error: "Bot uploads are not configured." });
+
   const expected = "Bearer " + env.BOT_API_KEY;
 
   if (!authorization || authorization.length !== expected.length ||
