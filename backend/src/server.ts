@@ -8,7 +8,7 @@ import multer from "multer";
 import { z } from "zod";
 import { env } from "./config.js";
 import { connectDatabase } from "./db.js";
-import { createOAuthState, getDiscordAuthorizeUrl, handleDiscordCallback, setSessionCookie, clearSessionCookie, requireAuth } from "./auth.js";
+import { createOAuthState, getDiscordAuthorizeUrl, handleDiscordCallback, setSessionCookie, clearSessionCookie, requireAuth, requireBotAuth } from "./auth.js";
 import { User } from "./models/User.js";
 import { Image } from "./models/Image.js";
 import { Collection } from "./models/Collection.js";
@@ -68,6 +68,58 @@ app.get("/api/images", requireAuth, async (req, res) => {
   const skip = (query.page - 1) * query.limit; const sort = query.sort === "oldest" ? 1 : -1;
   const [items, total] = await Promise.all([Image.find(filter).sort({ createdAt: sort }).skip(skip).limit(query.limit).lean(), Image.countDocuments(filter)]);
   res.json({ items, pagination: { page: query.page, limit: query.limit, total, pages: Math.ceil(total / query.limit) } });
+});
+
+
+app.post("/api/bot/images/upload", requireBotAuth, upload.single("image"), async (req, res) => {
+  const discordUserId = typeof req.body.discordUserId === "string" ? req.body.discordUserId.trim() : "";
+  const tags = typeof req.body.tags === "string"
+    ? req.body.tags.split(",").map((tag: string) => tag.trim().toLowerCase()).filter(Boolean).slice(0, 20)
+    : [];
+
+  if (!/^\d{17,20}$/.test(discordUserId)) {
+    return res.status(400).json({ error: "A valid Discord user ID is required." });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: "Upload a PNG, JPEG, WebP, or GIF image." });
+  }
+
+  try {
+    await connectDatabase();
+    const uploaded = await uploadToProviders(req.file.buffer, req.file.originalname, req.file.mimetype);
+
+    const image = await Image.create({
+      userId: discordUserId,
+      filename: req.file.originalname,
+      originalFilename: req.file.originalname,
+      mimeType: req.file.mimetype,
+      originalSize: req.file.size,
+      hosts: uploaded.hosts,
+      tags,
+      collectionId: null
+    });
+
+    res.status(201).json({
+      item: {
+        id: String(image._id),
+        filename: image.filename,
+        originalSize: image.originalSize,
+        mimeType: image.mimeType,
+        hosts: uploaded.hosts.map((host) => ({
+          provider: host.provider,
+          url: host.url,
+          status: host.status,
+          error: host.error ?? null
+        })),
+        createdAt: image.createdAt
+      },
+      providerWarnings: uploaded.errors
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(502).json({ error: error instanceof Error ? error.message : "Upload failed." });
+  }
 });
 
 app.post("/api/images/upload", requireAuth, upload.single("image"), async (req, res) => {
