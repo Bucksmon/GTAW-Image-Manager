@@ -5,7 +5,7 @@ import "./styles.css";
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
 const GITHUB_URL = "https://github.com/Bucksmon/GTAW-Image-Manager-Web";
 const serverInstallUrl = DISCORD_CLIENT_ID
-  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=19456&integration_type=0`
+  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=343597403136&integration_type=0`
   : "https://discord.com/developers/applications";
 
 const installUrl = serverInstallUrl;
@@ -35,15 +35,15 @@ function App() {
 
   const copyText = async () => {
     try {
-      await navigator.clipboard.writeText("Drop an image into the configured GTAW upload channel.");
+      await navigator.clipboard.writeText("Post a screenshot in the configured approval channel and have an approver react with ✅.");
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     } catch {}
   };
 
   const faqItems = useMemo(() => [
-    ["Do I need to open a website to upload?", "No. No. Add the bot to a Discord server and choose the channel where uploads are allowed. Drop a PNG, JPEG, WebP, or GIF there and the bot handles the rest."],
-    ["What do I get back?", "The bot uploads the image to the configured hosting providers and replies with direct image URLs plus forum-ready BBCode and Markdown."],
+    ["Do I need to open a website to upload?", "No. No. Add the bot to a Discord server, run /setup, choose one screenshot approval channel and choose the server role allowed to approve screenshots. Post a PNG, JPEG, WebP, or GIF there; an approver reacts with ✅ and the bot handles the rest."],
+    ["What do I get back?", "The bot uploads approved images to the configured hosting providers and posts the direct image URLs plus forum-ready BBCode and Markdown in the uploader's private Discord thread."],
     ["Are my image-hosting credentials exposed?", "No. Provider credentials stay on the private backend deployment. The public site only contains client-safe information such as the Discord application ID."],
     ["Why is there still a website?", "The website is the product's public landing page: it explains the workflow, shows the benefits and gives you a quick way to add the bot."]
   ], []);
@@ -73,7 +73,7 @@ function App() {
         <section className="hero">
           <div className="eyebrow">BUILT FOR GTAW</div>
           <h1>Your screenshots.<br/><span>One Discord message away.</span></h1>
-          <p className="hero-copy">Drop a GTAW screenshot into a configured Discord channel. The bot handles hosting and gives you the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
+          <p className="hero-copy">Post a GTAW screenshot in the configured Discord approval channel. Once an approver reacts with ✅, the bot hosts it and delivers the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
           <div className="hero-actions">
             <a className="button button-primary large" href={serverInstallUrl} target="_blank" rel="noreferrer"><Icon name="discord" size={19}/> Add to Server</a>
             <a className="button button-secondary large" href="#how">See how it works <Icon name="chevron" size={16}/></a>
@@ -96,7 +96,7 @@ function App() {
               <div className="step-number">01</div>
               <div className="step-icon"><Icon name="discord" size={22}/></div>
               <h3>Send your screenshot</h3>
-              <p>Add the bot to a Discord server and drop an image into a configured channel.</p>
+              <p>Add the bot to a Discord server, run /setup, choose the approval channel and approver role, then post an image.</p>
             </article>
             <article className="step">
               <div className="step-number">02</div>
