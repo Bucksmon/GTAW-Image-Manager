@@ -12,7 +12,7 @@ const maxUploadBytes = Number(MAX_UPLOAD_MB) * 1024 * 1024;
 const allowedTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.MessageContent],
   partials: [Partials.Channel]
 });
 
