@@ -121,3 +121,14 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     res.status(401).json({ error: "Session expired. Please sign in again." });
   }
 }
+export function requireBotAuth(req: Request, res: Response, next: NextFunction) {
+  const authorization = req.header("authorization");
+  const expected = "Bearer " + env.BOT_API_KEY;
+
+  if (!authorization || authorization.length !== expected.length ||
+      !crypto.timingSafeEqual(Buffer.from(authorization), Buffer.from(expected))) {
+    return res.status(401).json({ error: "Invalid bot credentials." });
+  }
+
+  next();
+}
