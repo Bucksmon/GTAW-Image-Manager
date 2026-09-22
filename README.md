@@ -4,10 +4,11 @@ Public landing page for GTAW Image Manager.
 
 The product workflow is Discord-first:
 
-1. Send a screenshot to the Discord bot in a DM, or use `/upload` in a configured server channel.
-2. The bot sends the image to the private backend.
-3. The backend uploads it to the configured image-hosting providers.
-4. Discord receives direct URLs, BBCode and Markdown.
+1. Add the bot to a Discord server and run `/setup`.
+2. Select exactly one screenshot approval channel and exactly one server role allowed to approve screenshots.
+3. Users post screenshots in that channel.
+4. An approver reacts with ✅.
+5. The bot uploads the approved images to the private backend and posts the resulting URLs, BBCode and Markdown in the uploader's private Discord thread.
 
 The public website does **not** contain the backend, bot, database configuration or provider credentials.
 
