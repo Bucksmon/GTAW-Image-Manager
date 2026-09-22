@@ -15,7 +15,7 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().min(1),
   CLOUDINARY_API_SECRET: z.string().min(1),
   IMGBB_API_KEY: z.string().min(1),
-  BOT_API_KEY: z.string().min(32),
+  BOT_API_KEY: z.string().min(32).optional(),
   MAX_UPLOAD_MB: z.coerce.number().positive().max(8).default(4)
 }).transform((values) => ({
   ...values,
