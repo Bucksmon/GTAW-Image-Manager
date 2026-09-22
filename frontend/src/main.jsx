@@ -35,14 +35,14 @@ function App() {
 
   const copyText = async () => {
     try {
-      await navigator.clipboard.writeText("/upload");
+      await navigator.clipboard.writeText("Drop an image into the configured GTAW upload channel.");
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     } catch {}
   };
 
   const faqItems = useMemo(() => [
-    ["Do I need to open a website to upload?", "No. The bot is the main workflow. Add it to a Discord server and use /upload in a channel. The bot is designed for server channels. Add it to a server, then use <code>/upload</code> wherever members should be able to upload screenshots."],
+    ["Do I need to open a website to upload?", "No. No. Add the bot to a Discord server and choose the channel where uploads are allowed. Drop a PNG, JPEG, WebP, or GIF there and the bot handles the rest."],
     ["What do I get back?", "The bot uploads the image to the configured hosting providers and replies with direct image URLs plus forum-ready BBCode and Markdown."],
     ["Are my image-hosting credentials exposed?", "No. Provider credentials stay on the private backend deployment. The public site only contains client-safe information such as the Discord application ID."],
     ["Why is there still a website?", "The website is the product's public landing page: it explains the workflow, shows the benefits and gives you a quick way to add the bot."]
@@ -73,7 +73,7 @@ function App() {
         <section className="hero">
           <div className="eyebrow">BUILT FOR GTAW</div>
           <h1>Your screenshots.<br/><span>One Discord message away.</span></h1>
-          <p className="hero-copy">Use <code>/upload</code> in a Discord channel with your GTAW screenshot. The bot handles hosting and gives you the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
+          <p className="hero-copy">Drop a GTAW screenshot into a configured Discord channel. The bot handles hosting and gives you the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
           <div className="hero-actions">
             <a className="button button-primary large" href={serverInstallUrl} target="_blank" rel="noreferrer"><Icon name="discord" size={19}/> Add to Server</a>
             <a className="button button-secondary large" href="#how">See how it works <Icon name="chevron" size={16}/></a>
@@ -96,7 +96,7 @@ function App() {
               <div className="step-number">01</div>
               <div className="step-icon"><Icon name="discord" size={22}/></div>
               <h3>Send your screenshot</h3>
-              <p>Add the bot to a Discord server and use <code>/upload</code> in a channel with an image attached.</p>
+              <p>Add the bot to a Discord server and drop an image into a configured channel.</p>
             </article>
             <article className="step">
               <div className="step-number">02</div>
@@ -131,8 +131,8 @@ function App() {
             <div className="demo-copy">
               <div className="eyebrow">IN DISCORD</div>
               <h2>It can be this simple.</h2>
-              <p>Use <code>/upload</code> with an image and get everything back in one reply.</p>
-              <div className="command-row"><span>/upload</span><button onClick={copyText}>{copied ? "Copied" : "Copy"} <Icon name="copy" size={14}/></button></div>
+              <p>Drop an image into the channel and get everything back in one reply.</p>
+              <div className="command-row"><span>Drop image here</span><button onClick={copyText}>{copied ? "Copied" : "Copy"} <Icon name="copy" size={14}/></button></div>
             </div>
             <div className="discord-card">
               <div className="message-head"><span className="bot-avatar">G</span><div><strong>GTAW Image Manager</strong><small>APP</small></div></div>
