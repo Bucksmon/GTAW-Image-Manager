@@ -1,135 +1,170 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
-import { api } from "./api.js";
 
-const demoImages = [
-  { id: "demo-1", name: "pursuit-night.png", collection: "Police RP", size: "2.4 MB", date: "Today", tone: "night", url: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=80" },
-  { id: "demo-2", name: "traffic-stop.png", collection: "Police RP", size: "1.8 MB", date: "Yesterday", tone: "street", url: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=80" },
-  { id: "demo-3", name: "gang-meet.png", collection: "Gang RP", size: "3.1 MB", date: "Sep 18", tone: "red", url: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=80" },
-  { id: "demo-4", name: "crash-scene.png", collection: "Crashes", size: "2.0 MB", date: "Sep 17", tone: "orange", url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=80" },
-  { id: "demo-5", name: "downtown.png", collection: "Screenshots", size: "1.5 MB", date: "Sep 16", tone: "blue", url: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80" },
-  { id: "demo-6", name: "night-patrol.png", collection: "Police RP", size: "2.7 MB", date: "Sep 14", tone: "purple", url: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1200&q=80" }
-];
+const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
+const GITHUB_URL = "https://github.com/Bucksmon/GTAW-Image-Manager-Web";
+const installUrl = DISCORD_CLIENT_ID
+  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=19456`
+  : "https://discord.com/developers/applications";
 
-const demoCollections = [["All Images", 24, "grid"], ["Police RP", 11, "shield"], ["Gang RP", 5, "users"], ["Crashes", 4, "car"], ["Screenshots", 4, "image"]];
-
-function Icon({ name, size = 18 }) {
+function Icon({ name, size = 20 }) {
   const paths = {
-    grid: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,
-    image: <><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m4 17 5-5 3.5 3 2.5-2.5 6 5"/></>,
-    tag: <><path d="m3 12 9-9h5l4 4v5l-9 9z"/><circle cx="15.5" cy="8.5" r="1"/></>,
-    upload: <><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></>,
-    search: <><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></>,
-    copy: <><rect x="8" y="8" width="11" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/></>,
-    shield: <path d="M12 3 20 6v5c0 5-3.2 8.4-8 10-4.8-1.6-8-5-8-10V6z"/>,
-    users: <><circle cx="9" cy="8" r="3"/><path d="M3 20c.7-3.2 2.6-5 6-5s5.3 1.8 6 5"/><path d="M16 5.5a3 3 0 0 1 0 5.8M17 15c2.2.3 3.5 1.9 4 4"/></>,
-    car: <><path d="m5 17 1.5-6h11L20 17"/><path d="M4 17h16v3H4z"/><circle cx="7.5" cy="17.5" r="1"/><circle cx="16.5" cy="17.5" r="1"/><path d="m7 11 2-4h6l2 4"/></>,
-    settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-2.5V20a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 0 0 8 15a1.7 1.7 0 0 0-1.6-1H6v-2.5h.4A1.7 1.7 0 0 0 8 10a1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h2.5V5a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.6 1h.2v2.5H21a1.7 1.7 0 0 0-1.6 1.5z"/></>,
     discord: <><path d="M7 6.5a14 14 0 0 1 10 0c1.5 2.2 2.2 5 2 8.5-1.8 1.4-3.6 2.2-5.4 2.7l-1.1-1.5M7 6.5C5.5 8.7 4.8 11.5 5 15c1.8 1.4 3.6 2.2 5.4 2.7l1.1-1.5M8.5 13.5c2.1 1 4.9 1 7 0M9 10.5h.01M15 10.5h.01"/></>,
-    more: <><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>,
+    upload: <><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></>,
+    link: <><path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1-.1l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"/></>,
+    shield: <path d="M12 3 20 6v5c0 5-3.2 8.4-8 10-4.8-1.6-8-5-8-10V6z"/>,
+    copy: <><rect x="8" y="8" width="11" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/></>,
+    check: <><path d="m5 12 4 4L19 6"/></>,
+    external: <><path d="M14 5h5v5"/><path d="m19 5-8 8"/><path d="M19 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/></>,
+    github: <><path d="M9 19c-4 1.3-4-2-5.5-2.5M14.5 21v-2.9a2.6 2.6 0 0 0-.7-2c2.4-.3 4.8-1.2 4.8-5.4a4.2 4.2 0 0 0-1.1-2.9 3.9 3.9 0 0 0-.1-2.9s-.9-.3-3 1.1a10.4 10.4 0 0 0-5.4 0c-2.1-1.4-3-1.1-3-1.1a3.9 3.9 0 0 0-.1 2.9 4.2 4.2 0 0 0-1.1 2.9c0 4.2 2.4 5.1 4.8 5.4a2.9 2.9 0 0 0-.8 2v2.9"/></>,
+    chevron: <path d="m9 18 6-6-6-6"/>
   };
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
-}
-
-function normalizeImage(item, collections) {
-  const collection = collections.find((c) => String(c._id) === String(item.collectionId));
-  const host = item.hosts?.find((h) => h.status === "active") || item.hosts?.[0];
-  return { ...item, collection: collection?.name || "Uncategorized", size: ((item.originalSize || 0) / 1024 / 1024).toFixed(1) + " MB", date: new Date(item.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }), tone: "night", url: host?.url || "" };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {paths[name]}
+    </svg>
+  );
 }
 
 function App() {
-  const [active, setActive] = useState("All Images");
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("Newest");
-  const [selected, setSelected] = useState(null);
-  const [copied, setCopied] = useState("");
-  const [mobileNav, setMobileNav] = useState(false);
-  const [images, setImages] = useState([]);
-  const [user, setUser] = useState(null);
-  const [realCollections, setRealCollections] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [notice, setNotice] = useState("");
-  const inputRef = useRef(null);
+  const [copied, setCopied] = useState(false);
+  const [faq, setFaq] = useState(0);
 
-  const isDemo = !user;
-  const collections = isDemo ? demoCollections : [["All Images", images.length, "grid"], ...realCollections.map((c) => [c.name, images.filter((i) => String(i.collectionId) === String(c._id)).length, "folder"])];
-  const normalized = isDemo ? demoImages : images.map((item) => normalizeImage(item, realCollections));
-
-  useEffect(() => {
-    const error = new URLSearchParams(window.location.search).get("auth_error");
-    if (error) { setNotice(error); window.history.replaceState({}, "", window.location.pathname); }
-    api.me().then(setUser).catch(() => setUser(null)).finally(() => setLoading(false));
-  }, []);
-
-  const loadData = async () => {
-    if (!user) return;
+  const copyText = async () => {
     try {
-      const [imageData, collectionData] = await Promise.all([api.images({ search, sort: sort === "Name" ? "newest" : sort === "Newest" ? "newest" : "oldest" }), api.collections()]);
-      setImages(imageData.items || []); setRealCollections(collectionData.items || []);
-    } catch (error) { setNotice(error.message); }
+      await navigator.clipboard.writeText("/upload");
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    } catch {}
   };
 
-  useEffect(() => { loadData(); }, [user, search, sort]);
-
-  const filtered = useMemo(() => {
-    let list = normalized.filter((img) => active === "All Images" || img.collection === active);
-    if (search.trim()) { const q = search.toLowerCase(); list = list.filter((img) => img.name.toLowerCase().includes(q) || img.collection.toLowerCase().includes(q) || (img.tags || []).join(" ").includes(q)); }
-    if (sort === "Name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
-    return list;
-  }, [active, search, sort, normalized]);
-
-  const copy = async (value, label) => { try { await navigator.clipboard.writeText(value); setCopied(label); setTimeout(() => setCopied(""), 1400); } catch {} };
-
-  const handleFiles = async (files) => {
-    const file = files?.[0]; if (!file) return;
-    if (!user) { setNotice("Connect Discord first to upload real screenshots."); return; }
-    if (file.size > 8 * 1024 * 1024) { setNotice("That image is larger than the 8 MB upload limit."); return; }
-    setUploading(true); setNotice("");
-    try { await api.upload(file); await loadData(); setNotice("Upload complete."); } catch (error) { setNotice(error.message); } finally { setUploading(false); }
-  };
-
-  const selectedUrl = selected?.url || "";
-  const bbcode = selectedUrl ? "[img]" + selectedUrl + "[/img]" : "";
-  const markdown = selectedUrl ? "![" + selected.name + "](" + selectedUrl + ")" : "";
+  const faqItems = useMemo(() => [
+    ["Do I need to open a website to upload?", "No. The bot is the main workflow. Send an image to the bot in a DM, or use /upload in a server channel where the bot is enabled."],
+    ["What do I get back?", "The bot uploads the image to the configured hosting providers and replies with direct image URLs plus forum-ready BBCode and Markdown."],
+    ["Are my image-hosting credentials exposed?", "No. Provider credentials stay on the private backend deployment. The public site only contains client-safe information such as the Discord application ID."],
+    ["Why is there still a website?", "The website is the product's public landing page: it explains the workflow, shows the benefits and gives you a quick way to add the bot."]
+  ], []);
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <button className="mobile-menu" onClick={() => setMobileNav(!mobileNav)}>☰</button>
-        <div className="brand"><span className="brand-mark">G</span><strong>GTAW Image Manager</strong></div>
-        <div className="top-actions">
-          <span className="connection"><i className={user ? "online" : ""}/>{loading ? "Connecting..." : user ? "Connected" : "Demo mode"}</span>
-          {user ? <button className="discord-button" onClick={async () => { await api.logout(); setUser(null); setImages([]); }}>Logout</button> : <button className="discord-button" onClick={() => api.login()}><Icon name="discord" size={17}/> Connect Discord</button>}
-          <div className="avatar">{user?.username?.[0]?.toUpperCase() || "G"}</div>
-        </div>
+    <div className="site">
+      <header className="nav">
+        <a className="brand" href="#top" aria-label="GTAW Image Manager home">
+          <span className="brand-mark">G</span>
+          <span>
+            <strong>GTAW Image Manager</strong>
+            <small>Discord-first screenshot hosting</small>
+          </span>
+        </a>
+        <nav className="nav-links">
+          <a href="#how">How it works</a>
+          <a href="#features">Features</a>
+          <a href="#faq">FAQ</a>
+          <a href={GITHUB_URL} target="_blank" rel="noreferrer"><Icon name="github" size={16}/> GitHub</a>
+        </nav>
+        <a className="button button-primary nav-cta" href={installUrl} target="_blank" rel="noreferrer">
+          <Icon name="discord" size={17}/> Add to Discord
+        </a>
       </header>
 
-      <div className="layout">
-        <aside className={mobileNav ? "sidebar open" : "sidebar"}>
-          <div className="sidebar-label">LIBRARY</div>
-          <nav>{collections.map(([name, count, icon]) => <button className={active === name ? "nav-item active" : "nav-item"} onClick={() => { setActive(name); setMobileNav(false); }} key={name}><Icon name={icon} size={17}/><span>{name}</span><b>{count}</b></button>)}</nav>
-          <div className="sidebar-label collections-label">TOOLS</div>
-          <button className="nav-item"><Icon name="tag" size={17}/><span>Tags</span></button>
-          <button className="nav-item"><Icon name="settings" size={17}/><span>Settings</span></button>
-          <div className="sidebar-bottom"><div className="storage-title"><span>{user ? "Library" : "Storage"}</span><span>{user ? images.length + " images" : "Demo"}</span></div><div className="storage-bar"><span style={{ width: user ? "100%" : "72%" }}/></div><small>{user ? "Your private screenshot library" : "Demo library · connect Discord to begin"}</small></div>
-        </aside>
+      <main id="top">
+        <section className="hero">
+          <div className="eyebrow">BUILT FOR GTAW</div>
+          <h1>Your screenshots.<br/><span>One Discord message away.</span></h1>
+          <p className="hero-copy">Send a screenshot to the bot. It handles hosting and gives you the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
+          <div className="hero-actions">
+            <a className="button button-primary large" href={installUrl} target="_blank" rel="noreferrer"><Icon name="discord" size={19}/> Add to Discord</a>
+            <a className="button button-secondary large" href="#how">See how it works <Icon name="chevron" size={16}/></a>
+          </div>
+          <div className="trust-row">
+            <span><Icon name="shield" size={15}/> Credentials stay server-side</span>
+            <span><Icon name="link" size={15}/> Direct links + BBCode</span>
+            <span><Icon name="check" size={15}/> PNG · JPG · WebP · GIF</span>
+          </div>
+        </section>
 
-        <main className="content">
-          {notice && <div className="notice" onClick={() => setNotice("")}>{notice}</div>}
-          <div className="page-heading"><div><div className="breadcrumb">LIBRARY <span>/</span> {active.toUpperCase()}</div><h1>{active}</h1><p>Manage, organize and share your GTAW screenshots.</p></div><button className="upload-button" disabled={uploading} onClick={() => inputRef.current?.click()}><Icon name="upload" size={17}/> {uploading ? "Uploading..." : "Upload"}</button><input ref={inputRef} hidden type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => handleFiles(e.target.files)}/></div>
-          <section className="upload-zone" onClick={() => inputRef.current?.click()} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}><div className="upload-icon"><Icon name="upload" size={22}/></div><div><strong>{user ? "Drop screenshots here" : "Connect Discord to start uploading"}</strong><span>{user ? "or click to browse · PNG, JPG, WebP or GIF up to 8 MB" : "Your dashboard is ready — authentication unlocks your private library."}</span></div><kbd>{user ? "Upload" : "Connect"}</kbd></section>
+        <section id="how" className="how section">
+          <div className="section-heading">
+            <div className="eyebrow">HOW IT WORKS</div>
+            <h2>Three steps. No dashboard.</h2>
+            <p>The Discord bot is the workflow. The website is just here to explain it.</p>
+          </div>
+          <div className="steps">
+            <article className="step">
+              <div className="step-number">01</div>
+              <div className="step-icon"><Icon name="discord" size={22}/></div>
+              <h3>Send your screenshot</h3>
+              <p>DM the bot an image, or use <code>/upload</code> inside your configured GTAW server channel.</p>
+            </article>
+            <article className="step">
+              <div className="step-number">02</div>
+              <div className="step-icon"><Icon name="upload" size={22}/></div>
+              <h3>We handle the upload</h3>
+              <p>The private backend receives the file and sends it to your configured image hosts.</p>
+            </article>
+            <article className="step">
+              <div className="step-number">03</div>
+              <div className="step-icon"><Icon name="link" size={22}/></div>
+              <h3>Paste the result</h3>
+              <p>You get direct URLs, forum-ready BBCode and Markdown right back in Discord.</p>
+            </article>
+          </div>
+        </section>
 
-          <div className="toolbar"><div className="search"><Icon name="search" size={17}/><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search screenshots..."/><kbd>⌘ K</kbd></div><div className="toolbar-right"><span>{filtered.length} shown</span><select value={sort} onChange={(e) => setSort(e.target.value)}><option>Newest</option><option>Name</option><option>Oldest</option></select></div></div>
+        <section id="features" className="features section">
+          <div className="section-heading">
+            <div className="eyebrow">MADE FOR THE FLOW</div>
+            <h2>Built around what you actually do.</h2>
+          </div>
+          <div className="feature-grid">
+            <article><span className="feature-icon"><Icon name="discord" size={19}/></span><h3>Discord-first</h3><p>Upload from the place you already use. No separate account or dashboard required for the core workflow.</p></article>
+            <article><span className="feature-icon"><Icon name="link" size={19}/></span><h3>Forum-ready links</h3><p>Copy a direct image URL, BBCode or Markdown without formatting the link yourself.</p></article>
+            <article><span className="feature-icon"><Icon name="shield" size={19}/></span><h3>Server-side secrets</h3><p>Hosting credentials and database access stay in the private backend deployment, not in the public web app.</p></article>
+            <article><span className="feature-icon"><Icon name="upload" size={19}/></span><h3>Provider failover</h3><p>Multiple image providers can be used behind one upload workflow, so a single provider problem does not have to stop you.</p></article>
+          </div>
+        </section>
 
-          <div className="grid">{filtered.map((img) => <article className="image-card" key={img.id || img._id} onClick={() => setSelected(img)}><div className={"thumbnail " + (img.tone || "night")} style={img.url ? { backgroundImage: "linear-gradient(180deg, rgba(5,8,12,.08), rgba(5,8,12,.76)), url(" + img.url + ")", backgroundSize: "cover", backgroundPosition: "center" } : undefined}><div className="scene-lines"/><span>{img.collection}</span></div><div className="card-info"><div><strong>{img.name || img.filename}</strong><small>{img.size} · {img.date}</small></div><button className="icon-button" onClick={(e) => { e.stopPropagation(); if (img.url) copy(img.url, "url"); }}><Icon name="more" size={18}/></button></div></article>)}</div>
-          {filtered.length === 0 && <div className="empty-state"><Icon name="image" size={32}/><strong>No screenshots found</strong><span>Try another search or upload your first screenshot.</span></div>}
-          <footer className="footer-note">{isDemo ? "Demo library · Connect Discord to use your real private library." : "Private library · Images are stored as metadata and hosted by your configured image provider."}</footer>
-        </main>
-      </div>
+        <section className="demo section">
+          <div className="demo-panel">
+            <div className="demo-copy">
+              <div className="eyebrow">IN DISCORD</div>
+              <h2>It can be this simple.</h2>
+              <p>Send an image and get everything back in one reply.</p>
+              <div className="command-row"><span>/upload</span><button onClick={copyText}>{copied ? "Copied" : "Copy"} <Icon name="copy" size={14}/></button></div>
+            </div>
+            <div className="discord-card">
+              <div className="message-head"><span className="bot-avatar">G</span><div><strong>GTAW Image Manager</strong><small>APP</small></div></div>
+              <div className="message-body">
+                <strong>Upload complete</strong>
+                <div className="result-line"><span>cloudinary</span><code>https://res.cloudinary.com/.../screenshot.png</code></div>
+                <div className="result-line"><span>imgbb</span><code>https://i.ibb.co/.../screenshot.png</code></div>
+                <div className="result-line"><span>BBCode</span><code>[img]https://...[/img]</code></div>
+                <div className="result-line"><span>Markdown</span><code>![screenshot](https://...)</code></div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      {selected && <div className="modal-backdrop" onClick={() => setSelected(null)}><section className="modal" onClick={(e) => e.stopPropagation()}><div className={"modal-preview " + (selected.tone || "night")} style={selected.url ? { backgroundImage: "url(" + selected.url + ")", backgroundSize: "cover", backgroundPosition: "center" } : undefined}><div className="scene-lines"/></div><div className="modal-body"><div className="modal-title"><div><span className="eyebrow">SCREENSHOT</span><h2>{selected.name || selected.filename}</h2></div><button className="close" onClick={() => setSelected(null)}>×</button></div><p className="muted">{selected.collection} · {selected.size} · {selected.date}</p>{selectedUrl ? <><div className="link-box"><span>Direct image URL</span><code>{selectedUrl}</code><button onClick={() => copy(selectedUrl, "url")}><Icon name="copy" size={16}/>{copied === "url" ? "Copied" : "Copy"}</button></div><div className="link-box"><span>BBCode</span><code>{bbcode}</code><button onClick={() => copy(bbcode, "bbcode")}><Icon name="copy" size={16}/>{copied === "bbcode" ? "Copied" : "Copy"}</button></div><div className="link-box"><span>Markdown</span><code>{markdown}</code><button onClick={() => copy(markdown, "markdown")}><Icon name="copy" size={16}/>{copied === "markdown" ? "Copied" : "Copy"}</button></div></> : <div className="link-box"><span>Demo image</span><code>Connect Discord to access real links.</code><button onClick={() => api.login()}>Connect</button></div>}</div></section></div>}
+        <section id="faq" className="faq section">
+          <div className="section-heading">
+            <div className="eyebrow">FAQ</div>
+            <h2>Still wondering how it fits together?</h2>
+          </div>
+          <div className="faq-list">
+            {faqItems.map(([question, answer], index) => (
+              <button key={question} className={`faq-item ${faq === index ? "open" : ""}`} onClick={() => setFaq(faq === index ? -1 : index)}>
+                <span><strong>{question}</strong>{faq === index && <small>{answer}</small>}</span>
+                <span className="faq-icon"><Icon name="chevron" size={16}/></span>
+              </button>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <div><strong>GTAW Image Manager</strong><span>Discord-first screenshot hosting for GTAW players.</span></div>
+        <div className="footer-links"><a href={GITHUB_URL} target="_blank" rel="noreferrer">Source</a><a href={installUrl} target="_blank" rel="noreferrer">Add bot</a></div>
+      </footer>
     </div>
   );
 }
