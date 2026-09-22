@@ -5,7 +5,7 @@ import "./styles.css";
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
 const GITHUB_URL = "https://github.com/Bucksmon/GTAW-Image-Manager-Web";
 const serverInstallUrl = DISCORD_CLIENT_ID
-  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=19456&integration_type=0`
+  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=117760&integration_type=0`
   : "https://discord.com/developers/applications";
 
 const installUrl = serverInstallUrl;
