@@ -1,69 +1,38 @@
-# GTAW Image Manager
+# GTAW Image Manager — Web
 
-Open-source Discord-based image management for GTAW players.
+Public landing page for GTAW Image Manager.
 
-**Discord upload → secure API → image hosting → organized library → forum-ready links**
+The product workflow is Discord-first:
 
-## Goals
+1. Send a screenshot to the Discord bot in a DM, or use `/upload` in a configured server channel.
+2. The bot sends the image to the private backend.
+3. The backend uploads it to the configured image-hosting providers.
+4. Discord receives direct URLs, BBCode and Markdown.
 
-- Upload screenshots directly through Discord.
-- Store image metadata without storing image binaries in MongoDB.
-- Support multiple image-hosting providers through an adapter layer.
-- Generate BBCode, Markdown, HTML and direct links.
-- Give each player a private, organized screenshot library.
-- Keep production secrets out of the public repository.
-- Make the project easy for the GTAW community to contribute to.
+The public website does **not** contain the backend, bot, database configuration or provider credentials.
 
-## Architecture
+## Deploy
 
-| Component | Technology | Intended deployment |
-| --- | --- | --- |
-| Frontend | React + Vite | GitHub Pages |
-| API | Node.js + Express | Vercel |
-| Bot | Discord.js | Persistent bot host |
-| Database | MongoDB Atlas | Managed database |
-| Image hosting | Provider adapters | Imgur + backups |
+This repo is built with Vite and deployed to GitHub Pages using GitHub Actions.
 
-## Security
+Project Pages URL:
 
-Never commit Discord bot tokens, OAuth secrets, MongoDB credentials, image-hosting secrets, or production environment files.
+`https://bucksmon.github.io/GTAW-Image-Manager-Web/`
 
-Use `.env.example` as the configuration template. Production credentials belong in the deployment environment, not Git.
+## Development
 
-## Local development
-
-Requirements: Node.js 20+ and npm.
+Requirements: Node.js 24+.
 
 ```bash
-npm install
-cp .env.example .env
+npm --prefix frontend install
+npm --prefix frontend run dev
+npm --prefix frontend run build
 ```
 
-Run the API, frontend, or bot:
+## Configuration
 
-```bash
-npm run dev:backend
-npm run dev:frontend
-npm run dev:bot
-```
+The only public build variable is:
 
-## Roadmap
+`VITE_DISCORD_CLIENT_ID`
 
-1. Project foundation
-2. MongoDB user and image models
-3. Discord image intake
-4. Imgur upload provider
-5. Provider failover system
-6. Forum-code generator
-7. Discord OAuth dashboard
-8. Collections, tags and search
-9. GitHub Pages + Vercel deployment
-10. Community contribution workflow
-
-## Contributing
-
-Pull requests and issue reports are welcome. Keep secrets out of commits and use the environment template for local configuration.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+The Discord application ID is not a secret. Bot tokens, API keys, MongoDB credentials and image-provider credentials belong in the private backend/bot deployment.
