@@ -4,9 +4,15 @@ import "./styles.css";
 
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "";
 const GITHUB_URL = "https://github.com/Bucksmon/GTAW-Image-Manager-Web";
-const installUrl = DISCORD_CLIENT_ID
-  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=19456`
+const serverInstallUrl = DISCORD_CLIENT_ID
+  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=19456&integration_type=0`
   : "https://discord.com/developers/applications";
+
+const userInstallUrl = DISCORD_CLIENT_ID
+  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=applications.commands&integration_type=1`
+  : "https://discord.com/developers/applications";
+
+const installUrl = serverInstallUrl;
 
 function Icon({ name, size = 20 }) {
   const paths = {
@@ -40,7 +46,7 @@ function App() {
   };
 
   const faqItems = useMemo(() => [
-    ["Do I need to open a website to upload?", "No. The bot is the main workflow. Send an image to the bot in a DM, or use /upload in a server channel where the bot is enabled."],
+    ["Do I need to open a website to upload?", "No. The bot is the main workflow. Install it to your Discord account to use /upload in DMs, or add it to a server and use /upload there. Server-installed bots can also receive normal image messages in DMs when Discord allows the DM."],
     ["What do I get back?", "The bot uploads the image to the configured hosting providers and replies with direct image URLs plus forum-ready BBCode and Markdown."],
     ["Are my image-hosting credentials exposed?", "No. Provider credentials stay on the private backend deployment. The public site only contains client-safe information such as the Discord application ID."],
     ["Why is there still a website?", "The website is the product's public landing page: it explains the workflow, shows the benefits and gives you a quick way to add the bot."]
@@ -62,7 +68,7 @@ function App() {
           <a href="#faq">FAQ</a>
           <a href={GITHUB_URL} target="_blank" rel="noreferrer"><Icon name="github" size={16}/> GitHub</a>
         </nav>
-        <a className="button button-primary nav-cta" href={installUrl} target="_blank" rel="noreferrer">
+        <a className="button button-primary nav-cta" href={serverInstallUrl} target="_blank" rel="noreferrer">
           <Icon name="discord" size={17}/> Add to Discord
         </a>
       </header>
@@ -73,7 +79,8 @@ function App() {
           <h1>Your screenshots.<br/><span>One Discord message away.</span></h1>
           <p className="hero-copy">Send a screenshot to the bot. It handles hosting and gives you the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
           <div className="hero-actions">
-            <a className="button button-primary large" href={installUrl} target="_blank" rel="noreferrer"><Icon name="discord" size={19}/> Add to Discord</a>
+            <a className="button button-primary large" href={serverInstallUrl} target="_blank" rel="noreferrer"><Icon name="discord" size={19}/> Add to Server</a>
+            <a className="button button-secondary large" href={userInstallUrl} target="_blank" rel="noreferrer">Use in DMs</a>
             <a className="button button-secondary large" href="#how">See how it works <Icon name="chevron" size={16}/></a>
           </div>
           <div className="trust-row">
@@ -94,7 +101,7 @@ function App() {
               <div className="step-number">01</div>
               <div className="step-icon"><Icon name="discord" size={22}/></div>
               <h3>Send your screenshot</h3>
-              <p>DM the bot an image, or use <code>/upload</code> inside your configured GTAW server channel.</p>
+              <p>Install the app to your Discord account for DM commands, or add it to a server and use <code>/upload</code> there.</p>
             </article>
             <article className="step">
               <div className="step-number">02</div>
@@ -163,7 +170,7 @@ function App() {
 
       <footer className="footer">
         <div><strong>GTAW Image Manager</strong><span>Discord-first screenshot hosting for GTAW players.</span></div>
-        <div className="footer-links"><a href={GITHUB_URL} target="_blank" rel="noreferrer">Source</a><a href={installUrl} target="_blank" rel="noreferrer">Add bot</a></div>
+        <div className="footer-links"><a href={GITHUB_URL} target="_blank" rel="noreferrer">Source</a><a href={serverInstallUrl} target="_blank" rel="noreferrer">Add bot</a></div>
       </footer>
     </div>
   );
