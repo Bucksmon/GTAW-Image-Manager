@@ -8,10 +8,6 @@ const serverInstallUrl = DISCORD_CLIENT_ID
   ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=bot%20applications.commands&permissions=19456&integration_type=0`
   : "https://discord.com/developers/applications";
 
-const userInstallUrl = DISCORD_CLIENT_ID
-  ? `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(DISCORD_CLIENT_ID)}&scope=applications.commands&integration_type=1`
-  : "https://discord.com/developers/applications";
-
 const installUrl = serverInstallUrl;
 
 function Icon({ name, size = 20 }) {
@@ -46,7 +42,7 @@ function App() {
   };
 
   const faqItems = useMemo(() => [
-    ["Do I need to open a website to upload?", "No. The bot is the main workflow. Install it to your Discord account to use /upload in DMs, or add it to a server and use /upload there. Server-installed bots can also receive normal image messages in DMs when Discord allows the DM."],
+    ["Do I need to open a website to upload?", "No. The bot is the main workflow. Add it to a Discord server and use /upload in a channel. The bot is designed for server channels. Add it to a server, then use <code>/upload</code> wherever members should be able to upload screenshots."],
     ["What do I get back?", "The bot uploads the image to the configured hosting providers and replies with direct image URLs plus forum-ready BBCode and Markdown."],
     ["Are my image-hosting credentials exposed?", "No. Provider credentials stay on the private backend deployment. The public site only contains client-safe information such as the Discord application ID."],
     ["Why is there still a website?", "The website is the product's public landing page: it explains the workflow, shows the benefits and gives you a quick way to add the bot."]
@@ -77,10 +73,9 @@ function App() {
         <section className="hero">
           <div className="eyebrow">BUILT FOR GTAW</div>
           <h1>Your screenshots.<br/><span>One Discord message away.</span></h1>
-          <p className="hero-copy">Send a screenshot to the bot. It handles hosting and gives you the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
+          <p className="hero-copy">Use <code>/upload</code> in a Discord channel with your GTAW screenshot. The bot handles hosting and gives you the links you need for GTAW forums, posts and chats — without making you open another dashboard.</p>
           <div className="hero-actions">
             <a className="button button-primary large" href={serverInstallUrl} target="_blank" rel="noreferrer"><Icon name="discord" size={19}/> Add to Server</a>
-            <a className="button button-secondary large" href={userInstallUrl} target="_blank" rel="noreferrer">Use in DMs</a>
             <a className="button button-secondary large" href="#how">See how it works <Icon name="chevron" size={16}/></a>
           </div>
           <div className="trust-row">
@@ -101,7 +96,7 @@ function App() {
               <div className="step-number">01</div>
               <div className="step-icon"><Icon name="discord" size={22}/></div>
               <h3>Send your screenshot</h3>
-              <p>Install the app to your Discord account for DM commands, or add it to a server and use <code>/upload</code> there.</p>
+              <p>Add the bot to a Discord server and use <code>/upload</code> in a channel with an image attached.</p>
             </article>
             <article className="step">
               <div className="step-number">02</div>
@@ -124,7 +119,7 @@ function App() {
             <h2>Built around what you actually do.</h2>
           </div>
           <div className="feature-grid">
-            <article><span className="feature-icon"><Icon name="discord" size={19}/></span><h3>Discord-first</h3><p>Upload from the place you already use. No separate account or dashboard required for the core workflow.</p></article>
+            <article><span className="feature-icon"><Icon name="discord" size={19}/></span><h3>Discord-first</h3><p>Upload from the Discord servers you already use. No separate account or dashboard required for the core workflow.</p></article>
             <article><span className="feature-icon"><Icon name="link" size={19}/></span><h3>Forum-ready links</h3><p>Copy a direct image URL, BBCode or Markdown without formatting the link yourself.</p></article>
             <article><span className="feature-icon"><Icon name="shield" size={19}/></span><h3>Server-side secrets</h3><p>Hosting credentials and database access stay in the private backend deployment, not in the public web app.</p></article>
             <article><span className="feature-icon"><Icon name="upload" size={19}/></span><h3>Provider failover</h3><p>Multiple image providers can be used behind one upload workflow, so a single provider problem does not have to stop you.</p></article>
@@ -136,7 +131,7 @@ function App() {
             <div className="demo-copy">
               <div className="eyebrow">IN DISCORD</div>
               <h2>It can be this simple.</h2>
-              <p>Send an image and get everything back in one reply.</p>
+              <p>Use <code>/upload</code> with an image and get everything back in one reply.</p>
               <div className="command-row"><span>/upload</span><button onClick={copyText}>{copied ? "Copied" : "Copy"} <Icon name="copy" size={14}/></button></div>
             </div>
             <div className="discord-card">
